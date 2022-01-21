@@ -1,10 +1,10 @@
 import {
     Button,
     Card,
-    DatePicker,
     DisplayText,
     Frame,
     Navigation,
+    Select,
     TextContainer,
     TextStyle,
     TopBar
@@ -14,7 +14,6 @@ import {
     ColorsMajor,
     HeartMajor,
     HomeMajor,
-    SaveMinor,
 } from "@shopify/polaris-icons";
 import React, {useState} from "react";
 import {useThemeApi} from "../hooks/useThemeApi";
@@ -26,28 +25,39 @@ import {Hits, SearchBox} from "./search/instantSearch";
 import {Configure, InstantSearch} from "react-instantsearch-dom";
 import {fakeData} from "./test/data";
 import {PictureOfTheDayData, UsePictureOfTheDay} from "./db/usePictureOfTheDay";
+import {eachYearOfInterval} from "date-fns"
 
-export const DatePickerMulti = () => {
-    const [{month, year}, setDate] = useState({month: 1, year: 2018});
-    const [selectedDates, setSelectedDates] = useState({
-        start: new Date('Wed Feb 07 2018 00:00:00 GMT-0500 (EST)'),
-        end: new Date('Mon Mar 12 2018 00:00:00 GMT-0500 (EST)'),
-    });
+export const dateInterval = eachYearOfInterval({
+    start: new Date(2000, 1, 0),
+    end: new Date()
+}).reverse().map((date) => {
+    return {
+        label: `${date.getFullYear()}`,
+        value: `${date.getTime()}`
+    }
+})
 
-    const handleMonthChange = (month, year) => setDate({month, year})
+export const DateControl = () => {
+    const [dateRange, updateDateRange] = useState([
+        dateInterval[0],
+        dateInterval[1]
+    ])
+    const [selection, updateSelection] = useState("")
 
-    return (
-        <DatePicker
-            month={month}
-            year={year}
-            onChange={setSelectedDates}
-            onMonthChange={handleMonthChange}
-            selected={selectedDates}
-            multiMonth
-            allowRange
+    return <div className={'spacetagram-date-control'}>
+        <Button>Random</Button>
+        <Select
+            label="By Year"
+            labelInline={true}
+            options={dateInterval}
+            onChange={(value) => {
+                updateSelection(value)
+                updateDateRange([])
+            }}
+            value={selection}
         />
-    );
-}
+    </div>
+};
 
 export const Layout: React.FC = ({children}) => {
     const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
@@ -78,8 +88,8 @@ export const Layout: React.FC = ({children}) => {
                                 },
                                 {
                                     url: '/liked',
-                                    label: 'Liked Results',
-                                    icon: SaveMinor,
+                                    label: 'Liked',
+                                    icon: HeartMajor,
                                     badge: savedSearches.count,
                                 },
                             ]}
@@ -105,6 +115,8 @@ export const Layout: React.FC = ({children}) => {
                         />
                     </header>
                 }>
+                <div id="spacetagram-jumpToContent"/>
+                <DateControl/>
                 <Hits
                     HitsComponent={({hits}: { hits: PictureOfTheDayData[] }) => {
                         return hits.map((hit) => {

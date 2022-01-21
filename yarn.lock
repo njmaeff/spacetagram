@@ -886,6 +886,7 @@ __metadata:
     "@types/react": ^17.0.20
     "@types/react-dom": ^17.0.9
     "@types/react-instantsearch-dom": ^6.12.2
+    date-fns: ^2.28.0
     fuse.js: ^6.5.3
     next: ^12.0.8
     react: ^17.0.2
@@ -1534,6 +1535,13 @@ __metadata:
   version: 3.0.10
   resolution: "csstype@npm:3.0.10"
   checksum: 20a8fa324f2b33ddf94aa7507d1b6ab3daa6f3cc308888dc50126585d7952f2471de69b2dbe0635d1fdc31223fef8e070842691877e725caf456e2378685a631
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^2.28.0":
+  version: 2.28.0
+  resolution: "date-fns@npm:2.28.0"
+  checksum: a0516b2e4f99b8bffc6cc5193349f185f195398385bdcaf07f17c2c4a24473c99d933eb0018be4142a86a6d46cb0b06be6440ad874f15e795acbedd6fd727a1f
   languageName: node
   linkType: hard
 

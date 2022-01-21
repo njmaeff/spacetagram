@@ -2,12 +2,23 @@
     margin: 0 1rem;
 }
 
+.spacetagram-date-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    & > * {
+        margin: 1rem;
+    }
+}
+
 img {
     max-width: 100%;
 }
 
 .Polaris-Card {
     max-width: 60rem;
+    margin: 1rem;
 
     &__Footer {
         margin-top: 2rem;
