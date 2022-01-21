@@ -24,14 +24,33 @@ export interface Params {
 
 
 export class MemoryInstantSearchAdapter {
-
     async search(instantSearchRequests: SearchRequest[]): Promise<{ results: Partial<SearchResult>[] }> {
 
         return {
             results: instantSearchRequests.map(({params}) => {
                 let hits: PictureOfTheDayData[];
                 if (params.query) {
-                    hits = this.client.search(params.query).map((hit) => hit.item)
+                    const hitData = this.client.search(params.query);
+                    hits = hitData.map((hit) => {
+
+                        const _highlightResult = {}
+                        for (const {indices, key, value} of hit.matches) {
+                            const [start, end] = largestDistance(indices)
+                            _highlightResult[key] = {
+                                value: value.substring(0, start) + params.highlightPreTag +
+                                    value.substring(start, end + 1) +
+                                params.highlightPostTag + value.substring(end + 1),
+                                // matches: [value.substring(start, end + 1)],
+                                matchLevel: params.query.length >= this.matchThreshold ? 'partial' : 'none',
+                            }
+                        }
+                        return {
+                            ...hit.item,
+                            _highlightResult
+                        };
+
+                    });
+
                 } else {
                     hits = this.data;
                 }
@@ -62,19 +81,39 @@ export class MemoryInstantSearchAdapter {
 
     private makeClient() {
         this.client = new Fuse<any>(this.data, {
-            keys: this.options.keys,
-            includeScore: true,
+            keys: this.keys,
+            includeMatches: true,
         })
     }
 
-    constructor(private data: any[], private savedSearches: UseLocalStorageDB, private options: Options) {
+    constructor(private data: any[], private savedSearches: UseLocalStorageDB, options: Options) {
+        this.keys = options.keys
+        this.matchThreshold = options.matchThreshold ?? 3
         this.makeClient();
     }
 
+    private readonly matchThreshold;
+    private readonly keys: string[];
     private client: Fuse<PictureOfTheDayData & { date: string }>
 }
 
+export const largestDistance = (indices: Readonly<Fuse.RangeTuple[]>) => {
+    let largestIndex;
+    let largestGap;
+    for (const [first, second] of indices) {
+        const gap = second - first;
+        if (!largestGap || gap >= largestGap) {
+            largestGap = gap
+            largestIndex = [first, second]
+        }
+    }
+
+    return largestIndex;
+
+};
+
 
 export interface Options {
+    matchThreshold: number;
     keys: string[]
 }

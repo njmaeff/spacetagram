@@ -21,11 +21,11 @@ import {useRouter} from "next/router";
 import {
     MemoryInstantSearchAdapter
 } from "./search/client/memoryInstantSearchAdapter";
-import {Hits, SearchBox} from "./search/instantSearch";
+import {Highlight, Hits, SearchBox} from "./search/instantSearch";
 import {Configure, InstantSearch} from "react-instantsearch-dom";
 import {fakeData} from "./test/data";
 import {PictureOfTheDayData, UsePictureOfTheDay} from "./db/usePictureOfTheDay";
-import {eachYearOfInterval} from "date-fns"
+import {eachYearOfInterval, subYears} from "date-fns"
 
 export const dateInterval = eachYearOfInterval({
     start: new Date(2000, 1, 0),
@@ -37,11 +37,20 @@ export const dateInterval = eachYearOfInterval({
     }
 })
 
-export const DateControl = () => {
+export const useDateControl = () => {
     const [dateRange, updateDateRange] = useState([
-        dateInterval[0],
-        dateInterval[1]
+        new Date(dateInterval[0].value),
+        new Date(dateInterval[1].value)
     ])
+
+    return {
+        dateRange,
+        updateDateRange
+    } as const
+
+};
+
+export const DateControl: React.FC<ReturnType<typeof useDateControl>> = ({updateDateRange}) => {
     const [selection, updateSelection] = useState("")
 
     return <div className={'spacetagram-date-control'}>
@@ -52,7 +61,11 @@ export const DateControl = () => {
             options={dateInterval}
             onChange={(value) => {
                 updateSelection(value)
-                updateDateRange([])
+                const end = new Date(value)
+                updateDateRange([
+                    end,
+                    subYears(end, 1)
+                ])
             }}
             value={selection}
         />
@@ -64,11 +77,11 @@ export const Layout: React.FC = ({children}) => {
     const {toggleTheme} = useThemeApi()
     const router = useRouter();
     const savedSearches = new UsePictureOfTheDay('spacetagramData');
-
+    const dateProps = useDateControl();
     return (
         <InstantSearch
             searchClient={new MemoryInstantSearchAdapter(fakeData, savedSearches, {
-                keys: ['title', 'explanation']
+                keys: ['title', 'explanation'],
             })}
             indexName={''}>
             <Configure
@@ -116,16 +129,37 @@ export const Layout: React.FC = ({children}) => {
                     </header>
                 }>
                 <div id="spacetagram-jumpToContent"/>
-                <DateControl/>
+                <DateControl {...dateProps}/>
                 <Hits
                     HitsComponent={({hits}: { hits: PictureOfTheDayData[] }) => {
                         return hits.map((hit) => {
+
+                            const MediaComponent = hit.media_type === 'image' ? (
+                                <figure>
+                                    <img
+                                        src={hit.url}
+                                        alt={hit.title}
+                                    />
+                                    {hit.copyright && <figcaption>
+                                        <TextStyle
+                                            variation="subdued"><strong
+                                            aria-label={'Copyright'}>{'\u24B8 '}</strong>
+                                            {hit.copyright}
+                                        </TextStyle>
+                                    </figcaption>}
+                                </figure>) : (
+                                <iframe width="420" height="315"
+                                        src={hit.url}>
+                                </iframe>
+                            );
+
                             return <Card
                                 key={hit.hitKey}
                                 title={<div>
                                     <DisplayText
-                                        element={'h2'}>{hit.title}</DisplayText
-                                    >
+                                        element={'h2'}><Highlight hit={hit}
+                                                                  attribute={'title'}/>
+                                    </DisplayText>
                                     <DisplayText
                                         size="small"
                                         element={'h3'}>{hit.date.toDateString()}</DisplayText>
@@ -143,24 +177,15 @@ export const Layout: React.FC = ({children}) => {
                                 footerActionAlignment={'right'}>
                                 <TextContainer spacing={"loose"}>
 
-                                    <figure>
-                                        <img
-                                            src={hit.url}
-                                            alt={hit.title}
-                                        />
-                                        <figcaption>
-                                            <TextStyle
-                                                variation="subdued"><strong
-                                                aria-label={'Copyright'}>{'\u24B8 '}</strong>
-                                                {hit.copyright}
-                                            </TextStyle>
-                                        </figcaption>
-                                    </figure>
+                                    <a href={hit.url}
+                                       rel="noopener noreferrer"
+                                       target="_blank">{MediaComponent}</a>
                                     <DisplayText
                                         size="small"
-                                        element={'p'}>{hit.explanation}</DisplayText>
+                                        element={'p'}><Highlight hit={hit}
+                                                                 attribute={'explanation'}/></DisplayText>
                                 </TextContainer>
-                            </Card>
+                            </Card>;
                         });
                     }}
 
