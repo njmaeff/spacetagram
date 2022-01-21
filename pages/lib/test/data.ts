@@ -1,4 +1,4 @@
-import {PictureOfTheDayData} from "../db/pictureOfTheDay";
+import {PictureOfTheDayData} from "../db/usePictureOfTheDay";
 
 export const fakeData: PictureOfTheDayData[] = [{
     "copyright": "Gyorgy Soponyai",

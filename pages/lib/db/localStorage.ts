@@ -1,10 +1,14 @@
-export class LocalStorageDB<DataType> {
-    addItem(key: string, data: DataType) {
+import {useState} from "react";
+
+type KeyLike = string | number;
+
+export class UseLocalStorageDB<DataType = any> {
+    addItem(key: KeyLike, data: DataType) {
         this.data.set(key, data);
         this.save();
     }
 
-    removeItem(key: string) {
+    removeItem(key: KeyLike) {
         this.data.delete(key);
         this.save()
     }
@@ -13,17 +17,40 @@ export class LocalStorageDB<DataType> {
         return Array.from(this.data.values())
     }
 
-    save() {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.data.entries()))
+    length(): number {
+        return this.data.size
+    }
+
+    hasKey(key: KeyLike) {
+        return this.data.has(key);
     }
 
     constructor(private storageKey: string) {
-        this.data = new Map(JSON.parse(
-            localStorage.getItem(
-                storageKey
-            ))
-        )
+
+        if (global.window) {
+            this.data = new Map(JSON.parse(
+                localStorage.getItem(
+                    storageKey
+                )) ?? []
+            );
+        } else {
+            this.data = new Map();
+        }
+
+        const [count, updateCount] = useState(this.data.size)
+
+        this.save = () => {
+            localStorage.setItem(this.storageKey, JSON.stringify(Array.from(this.data.entries())))
+            if (this.data.size !== count) {
+                updateCount(this.data.size);
+            }
+        }
+
+        this.count = count;
+
     }
 
-    private data: Map<string, DataType>;
+    count: number;
+    save: () => void;
+    private data: Map<KeyLike, DataType>;
 }

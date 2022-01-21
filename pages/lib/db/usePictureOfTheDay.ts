@@ -1,4 +1,4 @@
-import {LocalStorageDB} from "./localStorage";
+import {UseLocalStorageDB} from "./localStorage";
 
 export interface PictureOfTheDayData {
     copyright: string;
@@ -9,8 +9,10 @@ export interface PictureOfTheDayData {
     service_version: string;
     title: string;
     url: string;
+    hitKey: number,
+    isSaved: boolean,
 }
 
 
-export class PictureOfTheDay extends LocalStorageDB<PictureOfTheDayData> {
+export class UsePictureOfTheDay extends UseLocalStorageDB<PictureOfTheDayData> {
 }

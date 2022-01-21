@@ -1,6 +1,7 @@
 import {
     Button,
     Card,
+    DatePicker,
     DisplayText,
     Frame,
     Navigation,
@@ -8,7 +9,13 @@ import {
     TextStyle,
     TopBar
 } from "@shopify/polaris";
-import {ColorsMajor, HomeMajor, SaveMinor,} from "@shopify/polaris-icons";
+import {
+    CircleMinusMajor,
+    ColorsMajor,
+    HeartMajor,
+    HomeMajor,
+    SaveMinor,
+} from "@shopify/polaris-icons";
 import React, {useState} from "react";
 import {useThemeApi} from "../hooks/useThemeApi";
 import {useRouter} from "next/router";
@@ -18,20 +25,42 @@ import {
 import {Hits, SearchBox} from "./search/instantSearch";
 import {Configure, InstantSearch} from "react-instantsearch-dom";
 import {fakeData} from "./test/data";
-import {PictureOfTheDayData} from "./db/pictureOfTheDay";
+import {PictureOfTheDayData, UsePictureOfTheDay} from "./db/usePictureOfTheDay";
+
+export const DatePickerMulti = () => {
+    const [{month, year}, setDate] = useState({month: 1, year: 2018});
+    const [selectedDates, setSelectedDates] = useState({
+        start: new Date('Wed Feb 07 2018 00:00:00 GMT-0500 (EST)'),
+        end: new Date('Mon Mar 12 2018 00:00:00 GMT-0500 (EST)'),
+    });
+
+    const handleMonthChange = (month, year) => setDate({month, year})
+
+    return (
+        <DatePicker
+            month={month}
+            year={year}
+            onChange={setSelectedDates}
+            onMonthChange={handleMonthChange}
+            selected={selectedDates}
+            multiMonth
+            allowRange
+        />
+    );
+}
 
 export const Layout: React.FC = ({children}) => {
     const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
-    const [isSearchActive, setIsSearchActive] = useState(false);
-    const [searchValue, setSearchValue] = useState('');
     const {toggleTheme} = useThemeApi()
     const router = useRouter();
+    const savedSearches = new UsePictureOfTheDay('spacetagramData');
 
     return (
-        <InstantSearch searchClient={new MemoryInstantSearchAdapter(fakeData, {
-            keys: ['title', 'explanation']
-        })}
-                       indexName={''}>
+        <InstantSearch
+            searchClient={new MemoryInstantSearchAdapter(fakeData, savedSearches, {
+                keys: ['title', 'explanation']
+            })}
+            indexName={''}>
             <Configure
                 hitsPerPage={10}
             />
@@ -51,7 +80,7 @@ export const Layout: React.FC = ({children}) => {
                                     url: '/liked',
                                     label: 'Liked Results',
                                     icon: SaveMinor,
-                                    badge: '15',
+                                    badge: savedSearches.count,
                                 },
                             ]}
                         />
@@ -68,7 +97,7 @@ export const Layout: React.FC = ({children}) => {
                                             accessibilityLabel={'Toggle dark and light theme'}/>
                                 </div>
                             }
-                            searchResultsVisible={isSearchActive}
+                            searchResultsVisible={false}
                             searchField={
                                 <SearchBox/>
                             }
@@ -79,15 +108,27 @@ export const Layout: React.FC = ({children}) => {
                 <Hits
                     HitsComponent={({hits}: { hits: PictureOfTheDayData[] }) => {
                         return hits.map((hit) => {
-                            return <Card key={hit.date.getTime()} title={<div>
-                                <DisplayText
-                                    element={'h2'}>{hit.title}</DisplayText
-                                >
-                                <DisplayText
-                                    size="small"
-                                    element={'h3'}>{hit.date.toDateString()}</DisplayText>
-                            </div>} actions={[]}
-                                         footerActionAlignment={'left'}>
+                            return <Card
+                                key={hit.hitKey}
+                                title={<div>
+                                    <DisplayText
+                                        element={'h2'}>{hit.title}</DisplayText
+                                    >
+                                    <DisplayText
+                                        size="small"
+                                        element={'h3'}>{hit.date.toDateString()}</DisplayText>
+                                </div>} actions={[]}
+                                primaryFooterAction={{
+                                    icon: hit.isSaved ? CircleMinusMajor : HeartMajor,
+                                    onAction() {
+                                        hit.isSaved
+                                            ? savedSearches.removeItem(hit.hitKey) :
+                                            savedSearches.addItem(hit.hitKey, hit);
+                                    }
+                                }
+                                }
+                                sectioned={true}
+                                footerActionAlignment={'right'}>
                                 <TextContainer spacing={"loose"}>
 
                                     <figure>

@@ -1,6 +1,7 @@
 import Fuse from "fuse.js";
-import {PictureOfTheDayData} from "../../db/pictureOfTheDay";
+import {PictureOfTheDayData} from "../../db/usePictureOfTheDay";
 import {SearchResult} from "./types";
+import {UseLocalStorageDB} from "../../db/localStorage";
 
 export class LocalStorageIndex {
 
@@ -37,12 +38,21 @@ export class MemoryInstantSearchAdapter {
 
                 const pageStart = params.page * 10
 
+                const resultHits = hits.slice(pageStart, pageStart + 10).map((hit) => {
+                    const date = new Date(hit.date)
+                    const hitKey = date.getTime()
+
+                    return {
+                        ...hit,
+                        date,
+                        hitKey,
+                        isSaved: this.savedSearches.hasKey(hitKey)
+                    }
+                })
+
                 return {
                     ...params,
-                    hits: hits.slice(pageStart, pageStart + 10).map((hit) => ({
-                        ...hit,
-                        date: new Date(hit.date)
-                    })),
+                    hits: resultHits,
                     nbHits: hits.length,
                     nbPages: Math.ceil(hits.length / params.hitsPerPage),
                 };
@@ -57,7 +67,7 @@ export class MemoryInstantSearchAdapter {
         })
     }
 
-    constructor(private data: any[], private options: Options) {
+    constructor(private data: any[], private savedSearches: UseLocalStorageDB, private options: Options) {
         this.makeClient();
     }
 

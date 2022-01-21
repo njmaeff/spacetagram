@@ -9,13 +9,7 @@ img {
 .Polaris-Card {
     max-width: 60rem;
 
-    margin: 1rem;
-    padding: 1rem 2rem;
-
-    figure {
-        margin: 1.5rem;
+    &__Footer {
+        margin-top: 2rem;
     }
 }
-
-//.Polaris-Frame__Content {
-//}
