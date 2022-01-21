@@ -1,5 +1,4 @@
 import React, {useEffect, useRef} from 'react';
-import {List} from "antd";
 import {InfiniteHitsProvided} from "react-instantsearch-core";
 
 export const InfiniteHits: React.ComponentType<InfiniteHitsProvided & { HitsComponent }> = ({
@@ -25,12 +24,12 @@ export const InfiniteHits: React.ComponentType<InfiniteHitsProvided & { HitsComp
     })
 
     return (
-        <List>
+        <div>
             <HitsComponent hits={hits}/>
             <li
                 className="ais-InfiniteHits-sentinel"
                 ref={sentinel}
             />
-        </List>
+        </div>
     );
 }

@@ -1,27 +1,53 @@
 import Fuse from "fuse.js";
+import {PictureOfTheDayData} from "../../db/pictureOfTheDay";
+import {SearchResult} from "./types";
 
 export class LocalStorageIndex {
 
 }
 
+export interface SearchRequest {
+    indexName: string;
+    params: Params;
+}
+
+export interface Params {
+    highlightPreTag: string;
+    highlightPostTag: string;
+    hitsPerPage: number;
+    query: string;
+    page: number;
+    facets: any[];
+    tagFilters: string;
+}
+
+
 export class MemoryInstantSearchAdapter {
-    clearCache() {
-        this.makeClient();
-        return this;
-    }
 
-    search(instantSearchRequests) {
-        instantSearchRequests.forEach((request) => {
-            const filters = request.params.facetFilters ?? []
-            filters.push(...this.options.facetFilters)
-            request.params.facetFilters = filters
-        });
+    async search(instantSearchRequests: SearchRequest[]): Promise<{ results: Partial<SearchResult>[] }> {
 
-        debugger
-    }
+        return {
+            results: instantSearchRequests.map(({params}) => {
+                let hits: PictureOfTheDayData[];
+                if (params.query) {
+                    hits = this.client.search(params.query).map((hit) => hit.item)
+                } else {
+                    hits = this.data;
+                }
 
-    searchForFacetValues(instantSearchRequests) {
-        debugger
+                const pageStart = params.page * 10
+
+                return {
+                    ...params,
+                    hits: hits.slice(pageStart, pageStart + 10).map((hit) => ({
+                        ...hit,
+                        date: new Date(hit.date)
+                    })),
+                    nbHits: hits.length,
+                    nbPages: Math.ceil(hits.length / params.hitsPerPage),
+                };
+            })
+        }
     }
 
     private makeClient() {
@@ -35,11 +61,10 @@ export class MemoryInstantSearchAdapter {
         this.makeClient();
     }
 
-    private client: Fuse<any>
+    private client: Fuse<PictureOfTheDayData & { date: string }>
 }
 
 
 export interface Options {
-    facetFilters?: string[],
     keys: string[]
 }

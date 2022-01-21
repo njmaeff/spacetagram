@@ -1,6 +1,6 @@
 import {LocalStorageDB} from "./localStorage";
 
-export interface PictureOfTheDay {
+export interface PictureOfTheDayData {
     copyright: string;
     date: Date;
     explanation: string;
@@ -12,5 +12,5 @@ export interface PictureOfTheDay {
 }
 
 
-export class PictureOfTheDay extends LocalStorageDB<PictureOfTheDay> {
+export class PictureOfTheDay extends LocalStorageDB<PictureOfTheDayData> {
 }

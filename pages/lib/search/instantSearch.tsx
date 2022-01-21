@@ -1,60 +1,25 @@
-import {
-    Configure,
-    connectInfiniteHits,
-    connectPoweredBy,
-    connectSearchBox,
-    InstantSearch,
-} from "react-instantsearch-dom"
+import {connectInfiniteHits, connectSearchBox,} from "react-instantsearch-dom"
 import React from "react";
 import {InfiniteHits} from "./infiniteHits";
-import {MemoryInstantSearchAdapter} from "./client/memoryInstantSearchAdapter";
+import {TopBar} from "@shopify/polaris";
 
-const PoweredBy = connectPoweredBy(({url}) => <a href={'/'}>Powered by
-    Local Storage</a>
-);
-
-const SearchBox = connectSearchBox(({
-                                        currentRefinement,
-                                        isSearchStalled,
-                                        refine,
-                                        children
-                                    }) => (
-    <form
-        noValidate action="" role="search">
-        <Search
-            type="search"
-            placeholder={'Search'}
+export const SearchBox = connectSearchBox(({
+                                               currentRefinement,
+                                               refine,
+                                               children
+                                           }) => (
+    <div>
+        <TopBar.SearchField
+            onChange={value => {
+                refine(value)
+            }}
             value={currentRefinement}
-            allowClear
-            onChange={event => refine(event.currentTarget.value)}
+            placeholder="Search"
+            showFocusBorder
         />
         {children}
-        {isSearchStalled ? 'My search is stalled' : ''}
-    </form>
+    </div>
+
 ));
 
-const Hits = connectInfiniteHits(InfiniteHits) as React.ComponentClass<{ HitsComponent }, any>
-
-export const SearchInterface: React.FC<{
-    indexName: string
-    HitsComponent
-    filters?: string[]
-}> = ({
-          indexName,
-          HitsComponent
-      }) => {
-    return (
-        <InstantSearch searchClient={new MemoryInstantSearchAdapter({})}
-                       indexName={indexName}>
-            <Configure
-                hitsPerPage={10}
-            />
-            <div>
-                <SearchBox>
-                    <PoweredBy/>
-                </SearchBox>
-            </div>
-            <Hits HitsComponent={HitsComponent}/>
-        </InstantSearch>
-    );
-}
+export const Hits = connectInfiniteHits(InfiniteHits) as React.ComponentClass<{ HitsComponent }, any>
