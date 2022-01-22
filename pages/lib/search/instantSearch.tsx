@@ -37,7 +37,7 @@ export const SearchBox = connectSearchBox(({
                 refine(value)
             }}
             value={currentRefinement}
-            placeholder="Search Results"
+            placeholder="Search"
             showFocusBorder
         />
         {children}

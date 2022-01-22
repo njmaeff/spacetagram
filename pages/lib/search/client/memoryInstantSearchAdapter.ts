@@ -60,7 +60,6 @@ export class MemoryInstantSearchAdapter {
                         ...hit,
                         date,
                         hitKey,
-                        isSaved: this.savedSearches.hasKey(hitKey)
                     }
                 })
 

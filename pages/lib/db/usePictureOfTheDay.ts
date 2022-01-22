@@ -10,7 +10,6 @@ export interface PictureOfTheDayData {
     title: string;
     url: string;
     hitKey: number,
-    isSaved: boolean,
 }
 
 

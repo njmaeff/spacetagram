@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Page} from "./lib/page";
-import {Highlight, Hits} from "./lib/search/instantSearch";
+import {Highlight, Hits, SearchBox} from "./lib/search/instantSearch";
 import {
     PictureOfTheDayData,
     UsePictureOfTheDay
@@ -9,97 +9,100 @@ import {
     Button,
     Card,
     DisplayText,
+    Frame,
     Loading,
+    Navigation,
     TextContainer,
-    TextStyle
+    TextStyle,
+    TopBar
 } from "@shopify/polaris";
-import {CircleMinusMajor, HeartMajor} from "@shopify/polaris-icons";
-import {DateControl, Layout, useDateControl} from "./lib/layout";
 import {
-    MemoryInstantSearchAdapter
-} from "./lib/search/client/memoryInstantSearchAdapter";
-import {fetch} from "./lib/api/fetch";
+    CircleMinusMajor,
+    ColorsMajor,
+    HeartMajor,
+    HomeMajor
+} from "@shopify/polaris-icons";
+import {WithSearch} from "./lib/withSearch";
+import {UseSearchClient} from "./hooks/useSearchClient";
+import {useThemeApi} from "./hooks/useThemeApi";
+import {useRouter} from "next/router";
 
-
-export const makeSearchClient = (savedSearches, data = []) => new MemoryInstantSearchAdapter(data, savedSearches, {
-    keys: ['title', 'explanation']
-});
-
-
-export class UseSearchClient {
-    async fetchDataRange(end: string, start: string) {
-        this.updateData({loading: true,})
-        const result = await fetch<PictureOfTheDayData[]>(`end_date=${end}`, `start_date=${start}`)
-        this.updateData({
-            client: makeSearchClient(this.savedSearches, result.data),
-            loading: false,
-            remaining: result.remaining
-        })
-    }
-
-    async fetchRandom() {
-        this.updateData({loading: true})
-        const result = await fetch<PictureOfTheDayData[]>(`count=1`);
-        this.updateData({
-            client: makeSearchClient(this.savedSearches, result.data),
-            loading: false,
-            remaining: result.remaining
-        })
-
-    }
-
-    constructor(private savedSearches) {
-        const [data, setData] = useState({
-                client: makeSearchClient(savedSearches),
-                loading: true,
-            }
-        )
-
-        this.data = data;
-        this.updateData = (data) => setData(prev => ({
-            ...prev,
-            ...data,
-        }));
-
-    }
-
-    data: {
-        client: MemoryInstantSearchAdapter;
-        loading: boolean;
-        remaining?: number
-    };
-    private readonly updateData: (data: Partial<this['data']>) => void;
-
-
-}
 
 export default () => {
     const savedSearches = new UsePictureOfTheDay('spacetagramData');
     const client = new UseSearchClient(savedSearches)
-    const dateProps = useDateControl();
 
     useEffect(() => {
         client.fetchRandom()
     }, []);
 
-    useEffect(() => {
-        if (dateProps.dateRange ) {
-            client.fetchDataRange(...dateProps.dateRange);
-        }
-    }, [dateProps.dateRange]);
-
     return (
 
         <Page title={"Spacetagram"}>
-            <Layout searchClient={client.data.client}
-                    likesCount={savedSearches.count}
+            <WithSearch searchClient={client.data.client}
+                        Frame={({children}) => {
+                            const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
+                            const {toggleTheme} = useThemeApi()
+                            const router = useRouter();
+                            const skipToContentRef = useRef(null);
+                            return <Frame
+                                showMobileNavigation={isNavMenuOpen}
+                                onNavigationDismiss={() => setIsNavMenuOpen(current => !current)}
+                                navigation={
+                                    <Navigation location={router.asPath}>
+                                        <Navigation.Section
+                                            items={[
+                                                {
+                                                    url: '/',
+                                                    label: 'Discover',
+                                                    icon: HomeMajor,
+                                                },
+                                                {
+                                                    url: '/liked',
+                                                    label: 'Liked',
+                                                    icon: HeartMajor,
+                                                    badge: savedSearches.count,
+                                                },
+                                            ]}
+                                        />
+                                    </Navigation>
+                                }
+                                topBar={
+                                    <header>
+                                        <TopBar
+                                            showNavigationToggle
+                                            secondaryMenu={
+                                                <div
+                                                    className={'spacetagram-theme-button'}>
+                                                    <Button
+                                                        onClick={toggleTheme}
+                                                        icon={ColorsMajor}
+                                                        accessibilityLabel={'Toggle dark and light theme'}/>
+                                                </div>
+                                            }
+                                            searchResultsVisible={false}
+                                            searchField={
+                                                <SearchBox/>
+                                            }
+                                            onNavigationToggle={() => setIsNavMenuOpen(current => !current)}
+                                        />
+                                    </header>
+                                }>
+                                <a id="SkipToContentTarget"
+                                   ref={skipToContentRef}
+                                   tabIndex={-1}/>
+                                {children}
+                                <footer/>
+                            </Frame>
+                        }}
             >{
                 client.data.loading ? <Loading/> :
                     <>
                         <div className={'spacetagram-date-control'}>
                             <Button
                                 onClick={() => client.fetchRandom()}>Random</Button>
-                            <DateControl {...dateProps}/>
+                            <DisplayText element={'p'}>Remaining
+                                Queries: {client.data.remaining}</DisplayText>
                         </div>
                         <Hits
                             HitsComponent={({hits}: { hits: PictureOfTheDayData[] }) => {
@@ -128,6 +131,7 @@ export default () => {
                                         </iframe>
                                     );
 
+                                    const isSaved = savedSearches.hasKey(hit.hitKey)
                                     return <Card
                                         key={hit.hitKey}
                                         title={<div>
@@ -141,9 +145,9 @@ export default () => {
                                                 element={'h3'}>{hit.date.toDateString()}</DisplayText>
                                         </div>} actions={[]}
                                         primaryFooterAction={{
-                                            icon: hit.isSaved ? CircleMinusMajor : HeartMajor,
+                                            icon: isSaved ? CircleMinusMajor : HeartMajor,
                                             onAction() {
-                                                hit.isSaved
+                                                isSaved
                                                     ? savedSearches.removeItem(hit.hitKey) :
                                                     savedSearches.addItem(hit.hitKey, hit);
                                             }
@@ -165,7 +169,8 @@ export default () => {
                             }}
 
                         /></>
-            }</Layout>
+            }
+            </WithSearch>
         </Page>
     );
 };
