@@ -6,7 +6,7 @@ export interface PageProps {
     charSet?: string;
 }
 
-export const Page: React.FC<PageProps> = ({
+export const PageTemplate: React.FC<PageProps> = ({
                                               children,
                                               title,
                                               charSet = "UTF-8",

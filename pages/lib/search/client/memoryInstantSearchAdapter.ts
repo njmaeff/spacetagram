@@ -1,7 +1,7 @@
 import Fuse from "fuse.js";
-import {PictureOfTheDayData} from "../../db/usePictureOfTheDay";
+import {PictureOfTheDayData} from "../../hooks/usePictureOfTheDayStorage";
 import {SearchResult} from "./types";
-import {UseLocalStorageDB} from "../../db/localStorage";
+import {UseLocalStorage} from "../../hooks/useLocalStorage";
 
 export interface SearchRequest {
     indexName: string;
@@ -81,7 +81,7 @@ export class MemoryInstantSearchAdapter {
         })
     }
 
-    constructor(private data: any[], private savedSearches: UseLocalStorageDB, options: Options) {
+    constructor(private data: any[], private savedSearches: UseLocalStorage, options: Options) {
         this.keys = options.keys
         this.matchThreshold = options.matchThreshold ?? 3
         this.makeClient();

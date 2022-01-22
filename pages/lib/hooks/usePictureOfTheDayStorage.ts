@@ -1,4 +1,4 @@
-import {UseLocalStorageDB} from "./localStorage";
+import {UseLocalStorage} from "./useLocalStorage";
 
 export interface PictureOfTheDayData {
     copyright: string;
@@ -13,5 +13,9 @@ export interface PictureOfTheDayData {
 }
 
 
-export class UsePictureOfTheDay extends UseLocalStorageDB<PictureOfTheDayData> {
+export class UsePictureOfTheDayStorage extends UseLocalStorage<PictureOfTheDayData> {
+
+    constructor() {
+        super('spacetagramData');
+    }
 }

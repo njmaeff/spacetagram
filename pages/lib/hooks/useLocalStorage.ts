@@ -2,8 +2,8 @@ import {useState} from "react";
 
 type KeyLike = string | number;
 
-export class UseLocalStorageDB<DataType = any> {
-    addItem(key: KeyLike, data: DataType) {
+export class UseLocalStorage<DataType = any> {
+    set(key: KeyLike, data: DataType) {
         this.data.set(key, data);
         this.save();
     }
@@ -25,6 +25,10 @@ export class UseLocalStorageDB<DataType = any> {
         return this.data.has(key);
     }
 
+    get(key: KeyLike) {
+        return this.data.get(key)
+    }
+
     constructor(private storageKey: string) {
 
         if (global.window) {
@@ -37,13 +41,11 @@ export class UseLocalStorageDB<DataType = any> {
             this.data = new Map();
         }
 
-        const [count, updateCount] = useState(this.data.size)
-
+        const [data, updateData] = useState({count: this.data.size})
+        const count = data.count
         this.save = () => {
             localStorage.setItem(this.storageKey, JSON.stringify(Array.from(this.data.entries())))
-            if (this.data.size !== count) {
-                updateCount(this.data.size);
-            }
+            updateData({count: this.data.size});
         }
 
         this.count = count;

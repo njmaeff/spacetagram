@@ -3,7 +3,7 @@
 }
 
 .spacetagram-highlight {
-    background-color: lightblue;
+    background-color: #506AD4;
 }
 
 .spacetagram-date-control {
@@ -26,5 +26,15 @@ img, iframe {
 
     &__Footer {
         margin-top: 2rem;
+    }
+}
+
+li {
+    list-style-type: none;
+}
+
+footer {
+    span {
+        display: inline !important;
     }
 }
