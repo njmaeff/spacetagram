@@ -1,6 +1,5 @@
 import Head from "next/head";
 import React from "react";
-import {Layout} from "./layout";
 
 export interface PageProps {
     title: string;
@@ -20,7 +19,7 @@ export const Page: React.FC<PageProps> = ({
                 <meta charSet={charSet}/>
                 <meta httpEquiv="x-ua-compatible" content="ie=edge"/>
             </Head>
-            <Layout>{children}</Layout>
+            {children}
         </>
     );
 };

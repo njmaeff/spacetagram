@@ -3,10 +3,6 @@ import {PictureOfTheDayData} from "../../db/usePictureOfTheDay";
 import {SearchResult} from "./types";
 import {UseLocalStorageDB} from "../../db/localStorage";
 
-export class LocalStorageIndex {
-
-}
-
 export interface SearchRequest {
     indexName: string;
     params: Params;
@@ -39,8 +35,7 @@ export class MemoryInstantSearchAdapter {
                             _highlightResult[key] = {
                                 value: value.substring(0, start) + params.highlightPreTag +
                                     value.substring(start, end + 1) +
-                                params.highlightPostTag + value.substring(end + 1),
-                                // matches: [value.substring(start, end + 1)],
+                                    params.highlightPostTag + value.substring(end + 1),
                                 matchLevel: params.query.length >= this.matchThreshold ? 'partial' : 'none',
                             }
                         }
@@ -70,6 +65,7 @@ export class MemoryInstantSearchAdapter {
                 })
 
                 return {
+                    page: params.page ?? 0,
                     ...params,
                     hits: resultHits,
                     nbHits: hits.length,
@@ -114,6 +110,6 @@ export const largestDistance = (indices: Readonly<Fuse.RangeTuple[]>) => {
 
 
 export interface Options {
-    matchThreshold: number;
+    matchThreshold?: number;
     keys: string[]
 }
