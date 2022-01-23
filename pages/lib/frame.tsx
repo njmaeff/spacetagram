@@ -1,16 +1,9 @@
 import React, {useRef, useState} from "react";
 import {useThemeApi} from "./hooks/useThemeApi";
 import {NavBar} from "./navigation";
-import {
-    Button,
-    DisplayText,
-    Frame as ShopifyFrame,
-    Icon,
-    TopBar
-} from "@shopify/polaris";
-import {CirclePlusMinor, ColorsMajor} from "@shopify/polaris-icons";
+import {Button, Frame as ShopifyFrame, TopBar} from "@shopify/polaris";
+import {ColorsMajor} from "@shopify/polaris-icons";
 import {UsePictureOfTheDayStorage} from "./hooks/usePictureOfTheDayStorage";
-import Link from "next/link";
 
 export const Frame: React.FC<{ savedSearches: UsePictureOfTheDayStorage; searchProps? }> = ({
                                                                                                 children,

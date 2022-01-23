@@ -1,9 +1,3 @@
-export interface FacetSearchResult {
-    facetHits: {};
-    exhaustiveFacetsCount: boolean;
-    processingTimeMS: any;
-}
-
 export interface SearchResult {
     hits: any[];
     nbHits: any;
