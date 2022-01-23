@@ -10,7 +10,6 @@ import {Hits, SearchBox} from "./lib/search/instantSearch";
 import {UseSearchClient} from "./lib/hooks/useSearchClient";
 import {Card} from "./lib/card";
 import {Frame} from "./lib/frame";
-import {Footer} from "./lib/footer";
 
 export default () => {
     const savedSearches = new UsePictureOfTheDayStorage();
@@ -31,20 +30,16 @@ export default () => {
                                }
 
             >{
-                client.data.loading ? <Loading/> :
-                    <>
-                        <Hits
-                            HitsComponent={({hits}: { hits: PictureOfTheDayData[] }) => {
-                                return hits.map((hit) => <Card data={hit}
-                                                               key={hit.hitKey}
-                                                               savedSearches={savedSearches}
-                                                               highlighted/>
-                                );
-                            }}
+                client.data.loading ? <Loading/> : <Hits
+                    HitsComponent={({hits}: { hits: PictureOfTheDayData[] }) => {
+                        return hits.map((hit) => <Card data={hit}
+                                                       key={hit.hitKey}
+                                                       savedSearches={savedSearches}
+                                                       highlighted/>
+                        );
+                    }}
 
-                        />
-                        <Footer/>
-                    </>
+                />
             }</WithSearchContext>
 
         </PageTemplate>

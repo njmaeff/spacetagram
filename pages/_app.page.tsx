@@ -13,8 +13,9 @@ export const App = ({Component, pageProps}) => {
 
     const options = new UseClientOptionsStorage();
     const [colorScheme, updateScheme] = useState<'dark' | 'light'>("light");
+    const savedScheme = options.get('colorScheme')
+
     useEffect(() => {
-        let savedScheme = options.get('colorScheme')
         if (!savedScheme) {
             options.set('colorScheme', 'light');
         } else if (savedScheme === 'dark') {
@@ -26,10 +27,15 @@ export const App = ({Component, pageProps}) => {
 
     const theme: ThemeConfig = {
         colors: {
-            surface: '#FFFFFF',
             primary: '#506AD4'
         },
         colorScheme,
+        logo: {
+            width: 124,
+            topBarSource: colorScheme === 'dark' ? '/img/logo-dark.png' : '/img/logo-light.png',
+            url: 'http://github.com/njmaeff/spacetagram',
+            accessibilityLabel: 'Spacetagram',
+        },
     };
 
     return (

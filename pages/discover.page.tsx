@@ -6,7 +6,6 @@ import {UsePictureOfDayAPI} from "./lib/hooks/usePictureOfDayAPI";
 import {WithDefaultContext} from "./lib/context/withDefaultContext";
 import {Card} from "./lib/card";
 import {Frame} from "./lib/frame";
-import {Footer} from "./lib/footer";
 
 
 export default () => {
@@ -19,7 +18,7 @@ export default () => {
 
     return (
 
-        <PageTemplate title={"Spacetagram"}>
+        <PageTemplate title={"Spacetagram | Discover"}>
             <WithDefaultContext
                 Frame={({children}) => <Frame
                     savedSearches={savedSearches}>{children}
@@ -38,8 +37,6 @@ export default () => {
                             key={element.hitKey}
                             savedSearches={savedSearches}/>
                         )}
-
-                        <Footer/>
                     </>
             }
             </WithDefaultContext>

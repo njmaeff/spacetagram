@@ -72,7 +72,11 @@ export const fetch = <Result = Record<string, any>>(
         request.onerror = function (ev) {
             reject({request: this, event: ev});
         };
+
         request.open("GET", apiUrl, true);
+        request.setRequestHeader(
+            'SameSite', 'Lax'
+        )
         request.send();
     });
 }

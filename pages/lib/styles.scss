@@ -1,9 +1,19 @@
+$primary-color: #506AD4;
+
+img, iframe {
+    max-width: 100%;
+}
+
+li {
+    list-style-type: none;
+}
+
 .spacetagram-theme-button {
     margin: 0 1rem;
 }
 
 .spacetagram-highlight {
-    background-color: #506AD4;
+    background-color: $primary-color;
 }
 
 .spacetagram-date-control {
@@ -16,9 +26,6 @@
     }
 }
 
-img, iframe {
-    max-width: 100%;
-}
 
 .Polaris-Card {
     max-width: 60rem;
@@ -29,12 +36,16 @@ img, iframe {
     }
 }
 
-li {
-    list-style-type: none;
+
+.Polaris-TopBar__Logo {
+    margin-top: -2.25rem;
 }
 
-footer {
-    span {
-        display: inline !important;
-    }
+.Polaris-Navigation__Logo {
+    margin-top: 2rem;
+}
+
+.Polaris-TopBar__LogoLink {
+    height: 100%;
+    overflow-y: hidden;
 }
