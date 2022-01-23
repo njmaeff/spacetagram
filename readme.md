@@ -1,4 +1,5 @@
 # Spacetagram
+See the app in action at `https://spacetagram.jmaeff.ca`
 
 ## Usage
 Discover astronomy photos and like your favorites. Under the "Discover" menu, view the current picture of the day. You may select a random entry by clicking the "Random" button. View your saved favorites under the "Liked" menu.
